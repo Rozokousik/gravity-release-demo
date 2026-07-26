@@ -26,4 +26,4 @@ HTML, CSS, and modern browser JavaScript.
 The dashboard uses the task API v2 contract (`/api/v2/tasks`). The v1 endpoint and its convenience client functions have been removed.
 
 > **Breaking change:** integrations must switch from the v1 task methods to the v2 request contract before upgrading.
-- Improved login validation documentation.
+- Added user profile documentation and account overview.- Added user profile documentation and account overview.
