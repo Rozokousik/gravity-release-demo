@@ -4,6 +4,53 @@ All notable changes to Gravity Release Demo are documented in this file.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-23
+
+### Security
+
+- User-provided login and task input is normalized before use.
+- Authentication tokens are retained only in memory for the active page session and cleared when the page is left.
+- Task content is output-encoded and priority values are allow-listed to prevent XSS injection.
+
+## [1.0.0] - 2026-07-20
+
+### ⚠ Breaking Changes
+
+- **Removed the `/api/v1/tasks` endpoint and all v1 task helper functions.** Integrations must migrate to the v2 request contract.
+
+### Changed
+
+- The dashboard task client now targets `/api/v2/tasks` exclusively.
+
+## [0.3.1] - 2026-07-16
+
+### Changed
+
+- Task loading now uses a short-lived client-side cache and coalesces duplicate refresh requests.
+- The task list skips DOM updates when the rendered state has not changed.
+
+## [0.3.0] - 2026-07-13
+
+### Added
+
+- A profile section that shows the signed-in user's name, role, handle, and initials avatar.
+
+## [0.2.1] - 2026-07-10
+
+### Fixed
+
+- Sign-in now rejects blank usernames and passwords with field-specific, accessible guidance.
+
+## [0.2.0] - 2026-07-08
+
+### Added
+
+- A dark theme with an accessible header toggle.
+
+### Changed
+
+- Theme preference is restored from local storage and follows the system setting by default.
+
 ### Added
 
 - Initial task management dashboard.

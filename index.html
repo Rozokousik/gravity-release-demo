@@ -25,6 +25,7 @@
           <p class="eyebrow">Welcome back</p>
           <h1 id="login-title">Sign in to your workspace</h1>
           <p class="login-copy">Keep your release work moving with a clear view of every task.</p>
+          <p class="form-message" id="login-error" role="alert" hidden></p>
           <form id="login-form" novalidate>
             <label for="username">Username</label>
             <input id="username" name="username" type="text" autocomplete="username" placeholder="alex.johnson" />
@@ -46,6 +47,17 @@
               <span>open tasks</span>
             </div>
           </div>
+
+          <section class="profile-page" aria-labelledby="profile-title">
+            <div class="profile-avatar" id="profile-avatar" aria-hidden="true">AJ</div>
+            <div class="profile-details">
+              <p class="eyebrow">Account</p>
+              <h2 id="profile-title"><span id="profile-name">Alex Johnson</span></h2>
+              <p id="profile-role">Product manager</p>
+              <span id="profile-handle">@alex.johnson</span>
+            </div>
+            <span class="profile-status"><span aria-hidden="true">●</span> Available</span>
+          </section>
 
           <div class="dashboard-grid">
             <section class="panel task-panel" aria-labelledby="tasks-title">
