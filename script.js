@@ -45,6 +45,12 @@ function setTheme(theme) {
   elements.themeToggle.setAttribute("aria-pressed", String(isDark));
 }
 
+function restoreThemePreference() {
+  const savedTheme = localStorage.getItem("gravity-theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  setTheme(savedTheme || (prefersDark ? "dark" : "light"));
+}
+
 function visibleTasks() {
   if (state.filter === "open") return state.tasks.filter((task) => !task.done);
   if (state.filter === "done") return state.tasks.filter((task) => task.done);
@@ -125,4 +131,7 @@ elements.filters.forEach((button) => {
 elements.themeToggle.addEventListener("click", () => {
   const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
   setTheme(nextTheme);
+  localStorage.setItem("gravity-theme", nextTheme);
 });
+
+restoreThemePreference();
