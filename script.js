@@ -58,6 +58,16 @@ function sanitizeUserInput(value, maxLength = 120) {
     .slice(0, maxLength);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  })[character]);
+}
+
 const elements = {
   loginPanel: document.querySelector("#login-panel"),
   loginForm: document.querySelector("#login-form"),
@@ -104,16 +114,22 @@ function renderTasks() {
 
   elements.taskCount.textContent = openTaskCount;
   elements.emptyState.hidden = tasks.length !== 0;
-  elements.taskList.innerHTML = tasks.map((task) => `
-    <li class="task-item ${task.done ? "is-done" : ""}">
-      <input class="task-toggle" type="checkbox" data-task-id="${task.id}" ${task.done ? "checked" : ""} aria-label="Mark ${task.title} complete" />
-      <div class="task-content">
-        <span class="task-title">${task.title}</span>
-        <span class="task-meta">${task.project}</span>
-      </div>
-      <span class="priority priority-${task.priority}">${task.priority}</span>
-    </li>
-  `).join("");
+  elements.taskList.innerHTML = tasks.map((task) => {
+    const title = escapeHtml(task.title);
+    const project = escapeHtml(task.project);
+    const priority = ["high", "medium", "low"].includes(task.priority) ? task.priority : "medium";
+
+    return `
+      <li class="task-item ${task.done ? "is-done" : ""}">
+        <input class="task-toggle" type="checkbox" data-task-id="${task.id}" ${task.done ? "checked" : ""} aria-label="Mark ${title} complete" />
+        <div class="task-content">
+          <span class="task-title">${title}</span>
+          <span class="task-meta">${project}</span>
+        </div>
+        <span class="priority priority-${priority}">${priority}</span>
+      </li>
+    `;
+  }).join("");
   state.lastTaskRender = renderKey;
 }
 
