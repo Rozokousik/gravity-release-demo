@@ -22,7 +22,8 @@ const TaskApiV1 = {
 const state = {
   currentUser: null,
   tasks: [],
-  filter: "all"
+  filter: "all",
+  taskCache: null
 };
 
 const elements = {
@@ -80,8 +81,19 @@ function renderTasks() {
   `).join("");
 }
 
+function cacheTasks(tasks) {
+  state.taskCache = tasks.map((task) => ({ ...task }));
+}
+
 async function loadTasks() {
+  if (state.taskCache) {
+    state.tasks = state.taskCache.map((task) => ({ ...task }));
+    renderTasks();
+    return;
+  }
+
   state.tasks = await TaskApiV1.fetchTasks();
+  cacheTasks(state.tasks);
   renderTasks();
 }
 
