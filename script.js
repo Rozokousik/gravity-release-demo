@@ -31,6 +31,12 @@ const TaskApiV2 = {
   }
 };
 
+const taskClient = {
+  list: () => TaskApiV2.fetchTasks(),
+  create: (task) => TaskApiV2.createTask(task),
+  update: (id, updates) => TaskApiV2.updateTask(id, updates)
+};
+
 const state = {
   currentUser: null,
   tasks: [],
@@ -121,7 +127,7 @@ async function loadTasks({ force = false } = {}) {
 
   if (state.pendingTaskRequest) return state.pendingTaskRequest;
 
-  const request = TaskApiV1.fetchTasks().then((tasks) => {
+  const request = taskClient.list().then((tasks) => {
     state.tasks = tasks;
     cacheTasks(tasks);
     renderTasks();
@@ -194,7 +200,7 @@ elements.loginForm.addEventListener("input", clearLoginError);
 elements.taskForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(elements.taskForm);
-  const task = await TaskApiV1.createTask({
+  const task = await taskClient.create({
     id: Date.now(),
     title: formData.get("task-title"),
     project: formData.get("task-project"),
@@ -210,7 +216,7 @@ elements.taskForm.addEventListener("submit", async (event) => {
 elements.taskList.addEventListener("change", async (event) => {
   if (!event.target.matches(".task-toggle")) return;
   const id = Number(event.target.dataset.taskId);
-  const updatedTask = await TaskApiV1.updateTask(id, { done: event.target.checked });
+  const updatedTask = await taskClient.update(id, { done: event.target.checked });
   state.tasks = state.tasks.map((task) => (task.id === id ? updatedTask : task));
   cacheTasks(state.tasks);
   renderTasks();
