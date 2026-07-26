@@ -39,6 +39,14 @@ const state = {
 
 const TASK_CACHE_TTL_MS = 30_000;
 
+function sanitizeUserInput(value, maxLength = 120) {
+  return String(value ?? "")
+    .replace(/[<>"'`]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
 const elements = {
   loginPanel: document.querySelector("#login-panel"),
   loginForm: document.querySelector("#login-form"),
@@ -171,7 +179,7 @@ function clearLoginError() {
 elements.loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(elements.loginForm);
-  const username = formData.get("username").trim();
+  const username = sanitizeUserInput(formData.get("username"), 60);
   const password = formData.get("password").trim();
 
   if (!username) return showLoginError("Enter your username to continue.", elements.loginForm.username);
@@ -193,9 +201,9 @@ elements.taskForm.addEventListener("submit", async (event) => {
   const formData = new FormData(elements.taskForm);
   const task = await taskClient.create({
     id: Date.now(),
-    title: formData.get("task-title"),
-    project: formData.get("task-project"),
-    priority: formData.get("task-priority"),
+    title: sanitizeUserInput(formData.get("task-title")),
+    project: sanitizeUserInput(formData.get("task-project"), 40),
+    priority: sanitizeUserInput(formData.get("task-priority"), 10),
     done: false
   });
   state.tasks.unshift(task);
