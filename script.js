@@ -20,21 +20,12 @@ const TaskApiV2 = {
     }
     return Promise.reject(new Error("Unsupported task operation"));
   },
-  fetchTasks() {
-    return this.request();
-  },
-  createTask(task) {
-    return this.request("", { method: "POST", body: task });
-  },
-  updateTask(id, updates) {
-    return this.request("", { method: "PATCH", body: { id, updates } });
-  }
 };
 
 const taskClient = {
-  list: () => TaskApiV2.fetchTasks(),
-  create: (task) => TaskApiV2.createTask(task),
-  update: (id, updates) => TaskApiV2.updateTask(id, updates)
+  list: () => TaskApiV2.request(),
+  create: (task) => TaskApiV2.request("", { method: "POST", body: task }),
+  update: (id, updates) => TaskApiV2.request("", { method: "PATCH", body: { id, updates } })
 };
 
 const state = {
