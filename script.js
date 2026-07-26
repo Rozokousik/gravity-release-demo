@@ -39,6 +39,17 @@ const state = {
 
 const TASK_CACHE_TTL_MS = 30_000;
 
+const authSession = {
+  token: null,
+  start(username) {
+    const entropy = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+    this.token = `${username}.${entropy}`;
+  },
+  clear() {
+    this.token = null;
+  }
+};
+
 function sanitizeUserInput(value, maxLength = 120) {
   return String(value ?? "")
     .replace(/[<>"'`]/g, "")
@@ -188,6 +199,7 @@ elements.loginForm.addEventListener("submit", (event) => {
   try {
     clearLoginError();
     state.currentUser = { name: username, role: "Product manager" };
+    authSession.start(username);
     showDashboard();
   } catch (error) {
     showLoginError("We couldn't sign you in. Please try again.", elements.loginForm.username);
@@ -237,3 +249,4 @@ elements.themeToggle.addEventListener("click", () => {
 
 restoreThemePreference();
 window.addEventListener("focus", refreshTasks);
+window.addEventListener("pagehide", () => authSession.clear());
