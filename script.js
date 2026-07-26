@@ -31,6 +31,10 @@ const elements = {
   loginError: document.querySelector("#login-error"),
   dashboard: document.querySelector("#dashboard"),
   welcomeName: document.querySelector("#welcome-name"),
+  profileName: document.querySelector("#profile-name"),
+  profileRole: document.querySelector("#profile-role"),
+  profileHandle: document.querySelector("#profile-handle"),
+  profileAvatar: document.querySelector("#profile-avatar"),
   taskList: document.querySelector("#task-list"),
   taskCount: document.querySelector("#task-count"),
   emptyState: document.querySelector("#empty-state"),
@@ -85,6 +89,15 @@ function showDashboard() {
   elements.loginPanel.hidden = true;
   elements.dashboard.hidden = false;
   elements.welcomeName.textContent = state.currentUser.name.split(" ")[0];
+  elements.profileName.textContent = state.currentUser.name;
+  elements.profileRole.textContent = state.currentUser.role;
+  elements.profileHandle.textContent = `@${state.currentUser.name.toLowerCase().replace(/\s+/g, ".")}`;
+  elements.profileAvatar.textContent = state.currentUser.name
+    .split(/\s+/)
+    .map((name) => name[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
   loadTasks();
 }
 
