@@ -11,6 +11,19 @@
   --shadow: 0 16px 40px rgba(32, 41, 72, 0.08);
 }
 
+body[data-theme="dark"] {
+  --canvas: #151926;
+  --surface: #202637;
+  --surface-subtle: #293145;
+  --text: #f4f6fd;
+  --muted: #aeb8cd;
+  --border: #39445d;
+  --accent: #9c91ff;
+  --accent-strong: #b5adff;
+  --success: #72d8ab;
+  --shadow: 0 18px 45px rgba(0, 0, 0, 0.26);
+}
+
 * { box-sizing: border-box; }
 
 body {
@@ -33,9 +46,16 @@ button { cursor: pointer; }
   height: 86px;
 }
 
+.header-actions { display: flex; align-items: center; gap: 10px; }
+
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-size: 1.05rem; font-weight: 800; text-decoration: none; }
 .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; color: white; background: var(--accent); border-radius: 9px; }
 .environment-badge { color: var(--accent); background: #eeecff; border-radius: 999px; padding: 6px 10px; font-size: 0.78rem; font-weight: 700; }
+.theme-toggle { padding: 7px 11px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 0.78rem; font-weight: 800; }
+body[data-theme="dark"] .environment-badge { background: #302d58; }
+body[data-theme="dark"] .priority-high { color: #ffb3b3; background: #5a3138; }
+body[data-theme="dark"] .priority-medium { color: #f6d68e; background: #594b2e; }
+body[data-theme="dark"] .priority-low { color: #a8d0ff; background: #2b4768; }
 
 .login-card { width: min(100%, 470px); margin: 72px auto; padding: 38px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); }
 .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 0.76rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }

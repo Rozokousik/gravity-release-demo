@@ -34,8 +34,22 @@ const elements = {
   taskCount: document.querySelector("#task-count"),
   emptyState: document.querySelector("#empty-state"),
   taskForm: document.querySelector("#task-form"),
-  filters: document.querySelectorAll(".filter-button")
+  filters: document.querySelectorAll(".filter-button"),
+  themeToggle: document.querySelector("#theme-toggle")
 };
+
+function setTheme(theme) {
+  const isDark = theme === "dark";
+  document.body.dataset.theme = isDark ? "dark" : "light";
+  elements.themeToggle.textContent = isDark ? "Light mode" : "Dark mode";
+  elements.themeToggle.setAttribute("aria-pressed", String(isDark));
+}
+
+function restoreThemePreference() {
+  const savedTheme = localStorage.getItem("gravity-theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  setTheme(savedTheme || (prefersDark ? "dark" : "light"));
+}
 
 function visibleTasks() {
   if (state.filter === "open") return state.tasks.filter((task) => !task.done);
@@ -113,3 +127,11 @@ elements.filters.forEach((button) => {
     renderTasks();
   });
 });
+
+elements.themeToggle.addEventListener("click", () => {
+  const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
+  setTheme(nextTheme);
+  localStorage.setItem("gravity-theme", nextTheme);
+});
+
+restoreThemePreference();
