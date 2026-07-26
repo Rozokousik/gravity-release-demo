@@ -24,8 +24,11 @@ const state = {
   tasks: [],
   filter: "all",
   taskCache: null,
-  lastTaskRender: null
+  lastTaskRender: null,
+  pendingTaskRequest: null
 };
+
+const TASK_CACHE_TTL_MS = 30_000;
 
 const elements = {
   loginPanel: document.querySelector("#login-panel"),
@@ -87,19 +90,41 @@ function renderTasks() {
 }
 
 function cacheTasks(tasks) {
-  state.taskCache = tasks.map((task) => ({ ...task }));
+  state.taskCache = {
+    tasks: tasks.map((task) => ({ ...task })),
+    cachedAt: Date.now()
+  };
 }
 
-async function loadTasks() {
-  if (state.taskCache) {
-    state.tasks = state.taskCache.map((task) => ({ ...task }));
+function hasFreshTaskCache() {
+  return state.taskCache && Date.now() - state.taskCache.cachedAt < TASK_CACHE_TTL_MS;
+}
+
+async function loadTasks({ force = false } = {}) {
+  if (!force && hasFreshTaskCache()) {
+    state.tasks = state.taskCache.tasks.map((task) => ({ ...task }));
     renderTasks();
     return;
   }
 
-  state.tasks = await TaskApiV1.fetchTasks();
-  cacheTasks(state.tasks);
-  renderTasks();
+  if (state.pendingTaskRequest) return state.pendingTaskRequest;
+
+  const request = TaskApiV1.fetchTasks().then((tasks) => {
+    state.tasks = tasks;
+    cacheTasks(tasks);
+    renderTasks();
+  });
+  state.pendingTaskRequest = request;
+
+  try {
+    await request;
+  } finally {
+    if (state.pendingTaskRequest === request) state.pendingTaskRequest = null;
+  }
+}
+
+function refreshTasks() {
+  return loadTasks();
 }
 
 function showDashboard() {
@@ -165,6 +190,7 @@ elements.taskForm.addEventListener("submit", async (event) => {
     done: false
   });
   state.tasks.unshift(task);
+  cacheTasks(state.tasks);
   elements.taskForm.reset();
   renderTasks();
 });
@@ -174,6 +200,7 @@ elements.taskList.addEventListener("change", async (event) => {
   const id = Number(event.target.dataset.taskId);
   const updatedTask = await TaskApiV1.updateTask(id, { done: event.target.checked });
   state.tasks = state.tasks.map((task) => (task.id === id ? updatedTask : task));
+  cacheTasks(state.tasks);
   renderTasks();
 });
 
@@ -192,3 +219,4 @@ elements.themeToggle.addEventListener("click", () => {
 });
 
 restoreThemePreference();
+window.addEventListener("focus", refreshTasks);
