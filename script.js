@@ -28,6 +28,7 @@ const state = {
 const elements = {
   loginPanel: document.querySelector("#login-panel"),
   loginForm: document.querySelector("#login-form"),
+  loginError: document.querySelector("#login-error"),
   dashboard: document.querySelector("#dashboard"),
   welcomeName: document.querySelector("#welcome-name"),
   taskList: document.querySelector("#task-list"),
@@ -87,15 +88,41 @@ function showDashboard() {
   loadTasks();
 }
 
+function showLoginError(message, field) {
+  elements.loginError.textContent = message;
+  elements.loginError.hidden = false;
+  [elements.loginForm.username, elements.loginForm.password].forEach((input) => {
+    input.setAttribute("aria-invalid", String(input === field));
+  });
+  field.focus();
+}
+
+function clearLoginError() {
+  elements.loginError.hidden = true;
+  [elements.loginForm.username, elements.loginForm.password].forEach((input) => {
+    input.removeAttribute("aria-invalid");
+  });
+}
+
 elements.loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(elements.loginForm);
-  state.currentUser = {
-    name: formData.get("username") || "Alex Johnson",
-    role: "Product manager"
-  };
-  showDashboard();
+  const username = formData.get("username").trim();
+  const password = formData.get("password").trim();
+
+  if (!username) return showLoginError("Enter your username to continue.", elements.loginForm.username);
+  if (!password) return showLoginError("Enter your password to continue.", elements.loginForm.password);
+
+  try {
+    clearLoginError();
+    state.currentUser = { name: username, role: "Product manager" };
+    showDashboard();
+  } catch (error) {
+    showLoginError("We couldn't sign you in. Please try again.", elements.loginForm.username);
+  }
 });
+
+elements.loginForm.addEventListener("input", clearLoginError);
 
 elements.taskForm.addEventListener("submit", async (event) => {
   event.preventDefault();
