@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A lightweight task management dashboard." />
+    <title>Gravity Tasks</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="brand" href="#dashboard" aria-label="Gravity Tasks home">
+          <span class="brand-mark" aria-hidden="true">G</span>
+          <span>Gravity Tasks</span>
+        </a>
+        <span class="environment-badge">Workspace</span>
+      </header>
+
+      <main>
+        <section class="login-card" id="login-panel" aria-labelledby="login-title">
+          <p class="eyebrow">Welcome back</p>
+          <h1 id="login-title">Sign in to your workspace</h1>
+          <p class="login-copy">Keep your release work moving with a clear view of every task.</p>
+          <form id="login-form" novalidate>
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" placeholder="alex.johnson" />
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" />
+            <button class="button button-primary" type="submit">Sign in</button>
+          </form>
+        </section>
+
+        <section class="dashboard" id="dashboard" hidden aria-live="polite">
+          <div class="dashboard-intro">
+            <div>
+              <p class="eyebrow">Monday, July 20</p>
+              <h1>Good morning, <span id="welcome-name">Alex</span>.</h1>
+              <p>Here is what needs your attention today.</p>
+            </div>
+            <div class="task-summary" aria-label="Task summary">
+              <strong id="task-count">0</strong>
+              <span>open tasks</span>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="panel task-panel" aria-labelledby="tasks-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Current sprint</p>
+                  <h2 id="tasks-title">My tasks</h2>
+                </div>
+                <div class="filter-group" role="group" aria-label="Filter tasks">
+                  <button class="filter-button is-active" data-filter="all" type="button">All</button>
+                  <button class="filter-button" data-filter="open" type="button">Open</button>
+                  <button class="filter-button" data-filter="done" type="button">Done</button>
+                </div>
+              </div>
+              <ul class="task-list" id="task-list" aria-label="Task list"></ul>
+              <p class="empty-state" id="empty-state" hidden>No tasks match this filter.</p>
+            </section>
+
+            <aside class="panel add-task-panel" aria-labelledby="add-task-title">
+              <p class="eyebrow">Quick capture</p>
+              <h2 id="add-task-title">Add a task</h2>
+              <form id="task-form">
+                <label for="task-title">What needs to happen?</label>
+                <input id="task-title" name="task-title" type="text" placeholder="Prepare release checklist" required />
+                <label for="task-project">Project</label>
+                <select id="task-project" name="task-project">
+                  <option>Platform</option>
+                  <option>Marketing</option>
+                  <option>Customer success</option>
+                </select>
+                <label for="task-priority">Priority</label>
+                <select id="task-priority" name="task-priority">
+                  <option value="high">High</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+                <button class="button button-primary" type="submit">Create task</button>
+              </form>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
