@@ -28,6 +28,7 @@ const state = {
 const elements = {
   loginPanel: document.querySelector("#login-panel"),
   loginForm: document.querySelector("#login-form"),
+  loginError: document.querySelector("#login-error"),
   dashboard: document.querySelector("#dashboard"),
   welcomeName: document.querySelector("#welcome-name"),
   taskList: document.querySelector("#task-list"),
@@ -90,8 +91,17 @@ function showDashboard() {
 elements.loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(elements.loginForm);
+  const username = formData.get("username").trim();
+  const password = formData.get("password").trim();
+
+  if (!username || !password) {
+    elements.loginError.textContent = "Username and password are required.";
+    elements.loginError.hidden = false;
+    return;
+  }
+
   state.currentUser = {
-    name: formData.get("username") || "Alex Johnson",
+    name: username,
     role: "Product manager"
   };
   showDashboard();
