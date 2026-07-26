@@ -20,3 +20,9 @@ Feature work is developed on short-lived branches and integrated with non-fast-f
 ## Technology
 
 HTML, CSS, and modern browser JavaScript.
+
+## API version
+
+The dashboard uses the task API v2 contract (`/api/v2/tasks`). The v1 endpoint and its convenience client functions have been removed.
+
+> **Breaking change:** integrations must switch from the v1 task methods to the v2 request contract before upgrading.
