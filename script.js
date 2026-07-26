@@ -23,7 +23,8 @@ const state = {
   currentUser: null,
   tasks: [],
   filter: "all",
-  taskCache: null
+  taskCache: null,
+  lastTaskRender: null
 };
 
 const elements = {
@@ -66,6 +67,9 @@ function visibleTasks() {
 function renderTasks() {
   const tasks = visibleTasks();
   const openTaskCount = state.tasks.filter((task) => !task.done).length;
+  const renderKey = JSON.stringify({ filter: state.filter, tasks, openTaskCount });
+
+  if (state.lastTaskRender === renderKey) return;
 
   elements.taskCount.textContent = openTaskCount;
   elements.emptyState.hidden = tasks.length !== 0;
@@ -79,6 +83,7 @@ function renderTasks() {
       <span class="priority priority-${task.priority}">${task.priority}</span>
     </li>
   `).join("");
+  state.lastTaskRender = renderKey;
 }
 
 function cacheTasks(tasks) {
