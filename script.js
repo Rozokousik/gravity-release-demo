@@ -1,21 +1,33 @@
-const TaskApiV1 = {
-  endpoint: "/api/v1/tasks",
+const TaskApiV2 = {
+  endpoint: "/api/v2/tasks",
   tasks: [
     { id: 1, title: "Review release analytics", project: "Platform", priority: "high", done: false },
     { id: 2, title: "Send customer launch brief", project: "Customer success", priority: "medium", done: false },
     { id: 3, title: "Archive June sprint notes", project: "Marketing", priority: "low", done: true }
   ],
+  request(path = "", { method = "GET", body } = {}) {
+    const url = `${this.endpoint}${path}`;
+    if (url !== this.endpoint) return Promise.reject(new Error("Unknown task resource"));
+    if (method === "GET") return Promise.resolve(this.tasks.map((task) => ({ ...task })));
+    if (method === "POST") {
+      this.tasks.unshift(body);
+      return Promise.resolve({ ...body });
+    }
+    if (method === "PATCH") {
+      const task = this.tasks.find((item) => item.id === body.id);
+      Object.assign(task, body.updates);
+      return Promise.resolve({ ...task });
+    }
+    return Promise.reject(new Error("Unsupported task operation"));
+  },
   fetchTasks() {
-    return Promise.resolve(this.tasks.map((task) => ({ ...task })));
+    return this.request();
   },
   createTask(task) {
-    this.tasks.unshift(task);
-    return Promise.resolve({ ...task });
+    return this.request("", { method: "POST", body: task });
   },
   updateTask(id, updates) {
-    const task = this.tasks.find((item) => item.id === id);
-    Object.assign(task, updates);
-    return Promise.resolve({ ...task });
+    return this.request("", { method: "PATCH", body: { id, updates } });
   }
 };
 
