@@ -22,8 +22,13 @@ const TaskApiV1 = {
 const state = {
   currentUser: null,
   tasks: [],
-  filter: "all"
+  filter: "all",
+  taskCache: null,
+  lastTaskRender: null,
+  pendingTaskRequest: null
 };
+
+const TASK_CACHE_TTL_MS = 30_000;
 
 const elements = {
   loginPanel: document.querySelector("#login-panel"),
@@ -65,6 +70,9 @@ function visibleTasks() {
 function renderTasks() {
   const tasks = visibleTasks();
   const openTaskCount = state.tasks.filter((task) => !task.done).length;
+  const renderKey = JSON.stringify({ filter: state.filter, tasks, openTaskCount });
+
+  if (state.lastTaskRender === renderKey) return;
 
   elements.taskCount.textContent = openTaskCount;
   elements.emptyState.hidden = tasks.length !== 0;
@@ -78,11 +86,45 @@ function renderTasks() {
       <span class="priority priority-${task.priority}">${task.priority}</span>
     </li>
   `).join("");
+  state.lastTaskRender = renderKey;
 }
 
-async function loadTasks() {
-  state.tasks = await TaskApiV1.fetchTasks();
-  renderTasks();
+function cacheTasks(tasks) {
+  state.taskCache = {
+    tasks: tasks.map((task) => ({ ...task })),
+    cachedAt: Date.now()
+  };
+}
+
+function hasFreshTaskCache() {
+  return state.taskCache && Date.now() - state.taskCache.cachedAt < TASK_CACHE_TTL_MS;
+}
+
+async function loadTasks({ force = false } = {}) {
+  if (!force && hasFreshTaskCache()) {
+    state.tasks = state.taskCache.tasks.map((task) => ({ ...task }));
+    renderTasks();
+    return;
+  }
+
+  if (state.pendingTaskRequest) return state.pendingTaskRequest;
+
+  const request = TaskApiV1.fetchTasks().then((tasks) => {
+    state.tasks = tasks;
+    cacheTasks(tasks);
+    renderTasks();
+  });
+  state.pendingTaskRequest = request;
+
+  try {
+    await request;
+  } finally {
+    if (state.pendingTaskRequest === request) state.pendingTaskRequest = null;
+  }
+}
+
+function refreshTasks() {
+  return loadTasks();
 }
 
 function showDashboard() {
@@ -148,6 +190,7 @@ elements.taskForm.addEventListener("submit", async (event) => {
     done: false
   });
   state.tasks.unshift(task);
+  cacheTasks(state.tasks);
   elements.taskForm.reset();
   renderTasks();
 });
@@ -157,6 +200,7 @@ elements.taskList.addEventListener("change", async (event) => {
   const id = Number(event.target.dataset.taskId);
   const updatedTask = await TaskApiV1.updateTask(id, { done: event.target.checked });
   state.tasks = state.tasks.map((task) => (task.id === id ? updatedTask : task));
+  cacheTasks(state.tasks);
   renderTasks();
 });
 
@@ -175,3 +219,4 @@ elements.themeToggle.addEventListener("click", () => {
 });
 
 restoreThemePreference();
+window.addEventListener("focus", refreshTasks);

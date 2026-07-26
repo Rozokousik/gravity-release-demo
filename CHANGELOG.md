@@ -4,6 +4,13 @@ All notable changes to Gravity Release Demo are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-07-16
+
+### Changed
+
+- Task loading now uses a short-lived client-side cache and coalesces duplicate refresh requests.
+- The task list skips DOM updates when the rendered state has not changed.
+
 ## [0.3.0] - 2026-07-13
 
 ### Added
