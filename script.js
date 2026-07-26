@@ -88,24 +88,41 @@ function showDashboard() {
   loadTasks();
 }
 
+function showLoginError(message, field) {
+  elements.loginError.textContent = message;
+  elements.loginError.hidden = false;
+  [elements.loginForm.username, elements.loginForm.password].forEach((input) => {
+    input.setAttribute("aria-invalid", String(input === field));
+  });
+  field.focus();
+}
+
+function clearLoginError() {
+  elements.loginError.hidden = true;
+  [elements.loginForm.username, elements.loginForm.password].forEach((input) => {
+    input.removeAttribute("aria-invalid");
+  });
+}
+
 elements.loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(elements.loginForm);
   const username = formData.get("username").trim();
   const password = formData.get("password").trim();
 
-  if (!username || !password) {
-    elements.loginError.textContent = "Username and password are required.";
-    elements.loginError.hidden = false;
-    return;
-  }
+  if (!username) return showLoginError("Enter your username to continue.", elements.loginForm.username);
+  if (!password) return showLoginError("Enter your password to continue.", elements.loginForm.password);
 
-  state.currentUser = {
-    name: username,
-    role: "Product manager"
-  };
-  showDashboard();
+  try {
+    clearLoginError();
+    state.currentUser = { name: username, role: "Product manager" };
+    showDashboard();
+  } catch (error) {
+    showLoginError("We couldn't sign you in. Please try again.", elements.loginForm.username);
+  }
 });
+
+elements.loginForm.addEventListener("input", clearLoginError);
 
 elements.taskForm.addEventListener("submit", async (event) => {
   event.preventDefault();

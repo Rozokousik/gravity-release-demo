@@ -63,10 +63,13 @@ h1, h2, p { margin-top: 0; }
 h1 { margin-bottom: 10px; font-size: clamp(1.65rem, 4vw, 2.2rem); letter-spacing: -0.04em; }
 h2 { margin-bottom: 0; font-size: 1.25rem; letter-spacing: -0.02em; }
 .login-copy, .dashboard-intro > div > p:last-child { color: var(--muted); line-height: 1.55; }
+.form-message { margin: 18px 0 -8px; padding: 10px 12px; color: #ae3737; background: #fff0f0; border: 1px solid #f4cccc; border-radius: 9px; font-size: 0.86rem; font-weight: 650; }
+body[data-theme="dark"] .form-message { color: #ffb6b6; background: #513238; border-color: #70404a; }
 
 form { display: grid; gap: 9px; margin-top: 28px; }
 label { margin-top: 8px; color: var(--text); font-size: 0.86rem; font-weight: 700; }
 input, select { width: 100%; min-height: 44px; padding: 10px 12px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 9px; outline-color: var(--accent); }
+input[aria-invalid="true"] { border-color: #ce5757; box-shadow: 0 0 0 3px rgba(206, 87, 87, 0.12); }
 .button { margin-top: 12px; min-height: 44px; padding: 10px 15px; border: 0; border-radius: 9px; font-weight: 800; transition: background 160ms ease, transform 160ms ease; }
 .button:hover { transform: translateY(-1px); }
 .button-primary { color: #fff; background: var(--accent); }
