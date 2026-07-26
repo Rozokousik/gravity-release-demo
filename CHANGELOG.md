@@ -4,6 +4,12 @@ All notable changes to Gravity Release Demo are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-13
+
+### Added
+
+- A profile section that shows the signed-in user's name, role, handle, and initials avatar.
+
 ## [0.2.1] - 2026-07-10
 
 ### Fixed
