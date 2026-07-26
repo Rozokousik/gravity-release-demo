@@ -46,6 +46,8 @@ button { cursor: pointer; }
   height: 86px;
 }
 
+.header-actions { display: flex; align-items: center; gap: 10px; }
+
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-size: 1.05rem; font-weight: 800; text-decoration: none; }
 .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; color: white; background: var(--accent); border-radius: 9px; }
 .environment-badge { color: var(--accent); background: #eeecff; border-radius: 999px; padding: 6px 10px; font-size: 0.78rem; font-weight: 700; }
