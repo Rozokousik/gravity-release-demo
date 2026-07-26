@@ -4,6 +4,16 @@ All notable changes to Gravity Release Demo are documented in this file.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-07-20
+
+### ⚠ Breaking Changes
+
+- **Removed the `/api/v1/tasks` endpoint and all v1 task helper functions.** Integrations must migrate to the v2 request contract.
+
+### Changed
+
+- The dashboard task client now targets `/api/v2/tasks` exclusively.
+
 ## [0.3.1] - 2026-07-16
 
 ### Changed

@@ -1,22 +1,31 @@
-const TaskApiV1 = {
-  endpoint: "/api/v1/tasks",
+const TaskApiV2 = {
+  endpoint: "/api/v2/tasks",
   tasks: [
     { id: 1, title: "Review release analytics", project: "Platform", priority: "high", done: false },
     { id: 2, title: "Send customer launch brief", project: "Customer success", priority: "medium", done: false },
     { id: 3, title: "Archive June sprint notes", project: "Marketing", priority: "low", done: true }
   ],
-  fetchTasks() {
-    return Promise.resolve(this.tasks.map((task) => ({ ...task })));
+  request(path = "", { method = "GET", body } = {}) {
+    const url = `${this.endpoint}${path}`;
+    if (url !== this.endpoint) return Promise.reject(new Error("Unknown task resource"));
+    if (method === "GET") return Promise.resolve(this.tasks.map((task) => ({ ...task })));
+    if (method === "POST") {
+      this.tasks.unshift(body);
+      return Promise.resolve({ ...body });
+    }
+    if (method === "PATCH") {
+      const task = this.tasks.find((item) => item.id === body.id);
+      Object.assign(task, body.updates);
+      return Promise.resolve({ ...task });
+    }
+    return Promise.reject(new Error("Unsupported task operation"));
   },
-  createTask(task) {
-    this.tasks.unshift(task);
-    return Promise.resolve({ ...task });
-  },
-  updateTask(id, updates) {
-    const task = this.tasks.find((item) => item.id === id);
-    Object.assign(task, updates);
-    return Promise.resolve({ ...task });
-  }
+};
+
+const taskClient = {
+  list: () => TaskApiV2.request(),
+  create: (task) => TaskApiV2.request("", { method: "POST", body: task }),
+  update: (id, updates) => TaskApiV2.request("", { method: "PATCH", body: { id, updates } })
 };
 
 const state = {
@@ -109,7 +118,7 @@ async function loadTasks({ force = false } = {}) {
 
   if (state.pendingTaskRequest) return state.pendingTaskRequest;
 
-  const request = TaskApiV1.fetchTasks().then((tasks) => {
+  const request = taskClient.list().then((tasks) => {
     state.tasks = tasks;
     cacheTasks(tasks);
     renderTasks();
@@ -182,7 +191,7 @@ elements.loginForm.addEventListener("input", clearLoginError);
 elements.taskForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(elements.taskForm);
-  const task = await TaskApiV1.createTask({
+  const task = await taskClient.create({
     id: Date.now(),
     title: formData.get("task-title"),
     project: formData.get("task-project"),
@@ -198,7 +207,7 @@ elements.taskForm.addEventListener("submit", async (event) => {
 elements.taskList.addEventListener("change", async (event) => {
   if (!event.target.matches(".task-toggle")) return;
   const id = Number(event.target.dataset.taskId);
-  const updatedTask = await TaskApiV1.updateTask(id, { done: event.target.checked });
+  const updatedTask = await taskClient.update(id, { done: event.target.checked });
   state.tasks = state.tasks.map((task) => (task.id === id ? updatedTask : task));
   cacheTasks(state.tasks);
   renderTasks();
