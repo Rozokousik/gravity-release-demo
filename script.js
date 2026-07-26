@@ -39,6 +39,35 @@ const state = {
 
 const TASK_CACHE_TTL_MS = 30_000;
 
+const authSession = {
+  token: null,
+  start(username) {
+    const entropy = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+    this.token = `${username}.${entropy}`;
+  },
+  clear() {
+    this.token = null;
+  }
+};
+
+function sanitizeUserInput(value, maxLength = 120) {
+  return String(value ?? "")
+    .replace(/[<>"'`]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  })[character]);
+}
+
 const elements = {
   loginPanel: document.querySelector("#login-panel"),
   loginForm: document.querySelector("#login-form"),
@@ -85,16 +114,22 @@ function renderTasks() {
 
   elements.taskCount.textContent = openTaskCount;
   elements.emptyState.hidden = tasks.length !== 0;
-  elements.taskList.innerHTML = tasks.map((task) => `
-    <li class="task-item ${task.done ? "is-done" : ""}">
-      <input class="task-toggle" type="checkbox" data-task-id="${task.id}" ${task.done ? "checked" : ""} aria-label="Mark ${task.title} complete" />
-      <div class="task-content">
-        <span class="task-title">${task.title}</span>
-        <span class="task-meta">${task.project}</span>
-      </div>
-      <span class="priority priority-${task.priority}">${task.priority}</span>
-    </li>
-  `).join("");
+  elements.taskList.innerHTML = tasks.map((task) => {
+    const title = escapeHtml(task.title);
+    const project = escapeHtml(task.project);
+    const priority = ["high", "medium", "low"].includes(task.priority) ? task.priority : "medium";
+
+    return `
+      <li class="task-item ${task.done ? "is-done" : ""}">
+        <input class="task-toggle" type="checkbox" data-task-id="${task.id}" ${task.done ? "checked" : ""} aria-label="Mark ${title} complete" />
+        <div class="task-content">
+          <span class="task-title">${title}</span>
+          <span class="task-meta">${project}</span>
+        </div>
+        <span class="priority priority-${priority}">${priority}</span>
+      </li>
+    `;
+  }).join("");
   state.lastTaskRender = renderKey;
 }
 
@@ -171,7 +206,7 @@ function clearLoginError() {
 elements.loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(elements.loginForm);
-  const username = formData.get("username").trim();
+  const username = sanitizeUserInput(formData.get("username"), 60);
   const password = formData.get("password").trim();
 
   if (!username) return showLoginError("Enter your username to continue.", elements.loginForm.username);
@@ -180,6 +215,7 @@ elements.loginForm.addEventListener("submit", (event) => {
   try {
     clearLoginError();
     state.currentUser = { name: username, role: "Product manager" };
+    authSession.start(username);
     showDashboard();
   } catch (error) {
     showLoginError("We couldn't sign you in. Please try again.", elements.loginForm.username);
@@ -193,9 +229,9 @@ elements.taskForm.addEventListener("submit", async (event) => {
   const formData = new FormData(elements.taskForm);
   const task = await taskClient.create({
     id: Date.now(),
-    title: formData.get("task-title"),
-    project: formData.get("task-project"),
-    priority: formData.get("task-priority"),
+    title: sanitizeUserInput(formData.get("task-title")),
+    project: sanitizeUserInput(formData.get("task-project"), 40),
+    priority: sanitizeUserInput(formData.get("task-priority"), 10),
     done: false
   });
   state.tasks.unshift(task);
@@ -229,3 +265,4 @@ elements.themeToggle.addEventListener("click", () => {
 
 restoreThemePreference();
 window.addEventListener("focus", refreshTasks);
+window.addEventListener("pagehide", () => authSession.clear());

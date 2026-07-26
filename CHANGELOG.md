@@ -4,6 +4,14 @@ All notable changes to Gravity Release Demo are documented in this file.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-23
+
+### Security
+
+- User-provided login and task input is normalized before use.
+- Authentication tokens are retained only in memory for the active page session and cleared when the page is left.
+- Task content is output-encoded and priority values are allow-listed to prevent XSS injection.
+
 ## [1.0.0] - 2026-07-20
 
 ### ⚠ Breaking Changes
