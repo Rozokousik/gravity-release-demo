@@ -20,3 +20,4 @@ Feature work is developed on short-lived branches and integrated with non-fast-f
 ## Technology
 
 HTML, CSS, and modern browser JavaScript.
+Updated documentation for GitHub Pull Request demo.
